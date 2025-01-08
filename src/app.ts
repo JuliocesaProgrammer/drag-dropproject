@@ -1,3 +1,35 @@
+//Validation
+
+interface validatable{
+    value: string | number
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    min?: number;
+    max?: number;
+}
+
+function validate(validatableInput: validatable){
+    let isValid = true;
+    if(validatableInput.required){
+        isValid = isValid && validatableInput.value.toString().trim().length !== 0
+    }
+    if (validatableInput.minLength !== undefined && typeof validatableInput === 'string'){
+      isValid = isValid && validatableInput.value.length > validatableInput.minLenght  
+    }
+    if (validatableInput.maxLength !== undefined && typeof validatableInput === 'string'){
+        isValid = isValid && validatableInput.value.length < validatableInput.maxLength
+      }
+    if (validatableInput.min !== undefined && typeof validatableInput === 'number'){
+        isValid = isValid && validatableInput.value >= validatableInput.min
+      }
+    if (validatableInput.max!== undefined && typeof validatableInput === 'number'){
+        isValid = isValid && validatableInput.value <= validatableInput.max
+    }
+    return isValid;
+}
+
+
 //Outbind decorator
 function autobind(_: any, _2: string, descriptor: PropertyDescriptor){
     const originalMethod = descriptor.value;
@@ -42,9 +74,25 @@ class ProjectInput{
             const enteredDescription = this.descriptionInputElement.value
             const enteredPeople = parseInt(this.peopleInputElement.value)
 
-            if(enteredTitle.trim().length === 0 || 
-            enteredDescription.trim().length === 0 || 
-            enteredTitle.trim().length === 0){
+            const titleValidatable: validatable ={
+                value: enteredTitle,
+                required: true,
+            }
+            const DescriptionValidatable: validatable ={
+                value: enteredDescription,
+                required: true,
+                minLength: 5
+            }
+            const PeopleValidatable: validatable ={
+                value: +enteredPeople,
+                required: true,
+                min: 1,
+                max: 5
+            }
+
+            if(!validate(titleValidatable)||
+               !validate(DescriptionValidatable)||
+               !validate(PeopleValidatable)){
                 alert('Invalid input, please try again.')
             }else{
                 return [enteredTitle, enteredDescription, +enteredPeople]
